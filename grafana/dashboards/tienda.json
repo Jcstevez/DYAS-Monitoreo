@@ -508,6 +508,83 @@
           "range": true
         }
       ]
+    },
+    {
+      "id": 12,
+      "type": "row",
+      "title": "Retos del equipo",
+      "collapsed": false,
+      "gridPos": { "x": 0, "y": 35, "w": 24, "h": 1 },
+      "panels": []
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Peticiones por URI en inventario",
+      "description": "Peticiones por segundo que recibe el servicio inventario, separadas por uri (sin contar /actuator).",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 0, "y": 36, "w": 12, "h": 8 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": { "lineWidth": 2, "fillOpacity": 10, "showPoints": "never" }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (uri) (rate(http_server_requests_seconds_count{application=\"inventario\", uri!~\"/actuator.*\"}[1m]))",
+          "legendFormat": "{{uri}}",
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "stat",
+      "title": "SLO 99%: disponibilidad de POST /api/pedidos (30 min)",
+      "description": "Porcentaje de peticiones POST /api/pedidos que NO terminan en 5xx en los ultimos 30 minutos. Los 4xx (404, 409) son errores del cliente y no cuentan. Objetivo: 99%; en rojo si cae por debajo.",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 12, "y": 36, "w": 12, "h": 8 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 99 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "auto",
+        "justifyMode": "center",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "100 * (1 - (sum(rate(http_server_requests_seconds_count{application=\"pedidos\", method=\"POST\", uri=\"/api/pedidos\", status=~\"5..\"}[30m])) or vector(0)) / sum(rate(http_server_requests_seconds_count{application=\"pedidos\", method=\"POST\", uri=\"/api/pedidos\"}[30m])))",
+          "legendFormat": "disponibilidad",
+          "range": true
+        }
+      ]
     }
   ]
 }
