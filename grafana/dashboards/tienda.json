@@ -527,6 +527,7 @@
       "fieldConfig": {
         "defaults": {
           "unit": "reqps",
+          "min": 0,
           "custom": { "lineWidth": 2, "fillOpacity": 10, "showPoints": "never" }
         },
         "overrides": []
